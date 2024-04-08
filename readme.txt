@@ -1,0 +1,3 @@
+- install deno on your machine
+- install deno extension on vscode
+- on the search box type >Deno and enable the Deno: Enable Deno Language Server
