@@ -2,7 +2,7 @@
 import {
   BinaryExpr,
   Expr,
-  Identifier,
+  Identifier, NullLiteral,
   NumericLiteral,
   Program,
   Stmt,
@@ -138,6 +138,13 @@ export default class Parser {
           kind: "Identifier",
           symbol: this.consumeToken().value,
         } as Identifier;
+
+      case TokenType.Null:
+        this.consumeToken(); // consume the null token and advance to the next token
+        return {
+          kind: "NullLiteral",
+          value: null,
+        } as NullLiteral;
 
       // Constants and Numeric Constants
       case TokenType.Number:

@@ -1,8 +1,8 @@
-import Parser from "./logic/parser.ts";
+import Parser from './logic/parser.ts';
 
-repl();
+runProgram();
 
-function repl() {
+function runProgram() {
   const parser = new Parser();
   console.log("\n Wrek prgraming language v0.1");
 
