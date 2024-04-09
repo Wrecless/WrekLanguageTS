@@ -18,5 +18,6 @@ function runProgram() {
     console.log(program);
 
     const result = evaluate(program);
+    console.log(result);
   }
 }
