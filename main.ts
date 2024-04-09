@@ -1,4 +1,5 @@
-import Parser from './logic/parser.ts';
+import Parser from "./logic/parser.ts";
+import { evaluate } from "./runtime/interpreter.ts";
 
 runProgram();
 
@@ -15,5 +16,7 @@ function runProgram() {
 
     const program = parser.produceAST(input);
     console.log(program);
+
+    const result = evaluate(program);
   }
 }
