@@ -2,7 +2,8 @@
 import {
   BinaryExpr,
   Expr,
-  Identifier, NullLiteral,
+  Identifier,
+  //NullLiteral,
   NumericLiteral,
   Program,
   Stmt,
@@ -10,7 +11,7 @@ import {
 
 import { Token, tokenize, TokenType } from "./lexer.ts";
 
-// Frontend for producing a valid AST from sourcode
+// Frontend for producing a valid AST from source code
 export default class Parser {
   private tokens: Token[] = [];
 
@@ -31,7 +32,7 @@ export default class Parser {
   }
 
   // Returns the previous token and then advances the tokens array to the next value.
-  // Also checks the type of expected token and throws if the values dnot match.
+  // Also checks the type of expected token and throws if the values don't match.
   private expect(type: TokenType, err: any) {
     const prev = this.tokens.shift() as Token;
     if (!prev || prev.type != type) {
@@ -68,7 +69,7 @@ export default class Parser {
     return this.parse_additive_expr();
   }
 
-  // Order of Prescidence
+  // Order of Prescience
 
   // AssignmentExpr
   // MemberExpr
@@ -139,12 +140,12 @@ export default class Parser {
           symbol: this.consumeToken().value,
         } as Identifier;
 
-      case TokenType.Null:
-        this.consumeToken(); // consume the null token and advance to the next token
-        return {
-          kind: "NullLiteral",
-          value: null,
-        } as NullLiteral;
+      // case TokenType.Null:
+      //   this.consumeToken(); // consume the null token and advance to the next token
+      //   return {
+      //     kind: "NullLiteral",
+      //     value: null,
+      //   } as NullLiteral;
 
       // Constants and Numeric Constants
       case TokenType.Number:

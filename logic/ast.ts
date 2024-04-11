@@ -6,7 +6,7 @@
 export type NodeType =
   | "Program" // The whole program.
   | "NumericLiteral" // A number.
-    | "NullLiteral" // A null value.
+  //| "NullLiteral" // A null value.
   | "Identifier" // A name for a variable or symbol.
   | "BinaryExpr"; // An operation involving two operands.
 
@@ -45,7 +45,7 @@ export interface NumericLiteral extends Expr {
 }
 
 // Define a null literal, representing a null value in the code.
-export interface NullLiteral extends Expr {
-  kind: "NullLiteral";
-  value: null; // The null value.
-}
+// export interface NullLiteral extends Expr {
+// kind: "NullLiteral";
+// value: null; // The null value.
+// }

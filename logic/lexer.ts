@@ -6,7 +6,7 @@
 // Define token types for language parsing.
 export enum TokenType {
   // Represent literal values.
-  Null,
+  // Null,
   Number,
   Identifier,
 
@@ -24,7 +24,7 @@ export enum TokenType {
 // Map keywords to their corresponding token types.
 const KEYWORDS: Record<string, TokenType> = {
   let: TokenType.Let,
-  null: TokenType.Null,
+  // null: TokenType.Null,
 };
 
 // Represent a lexical token in the source code.
