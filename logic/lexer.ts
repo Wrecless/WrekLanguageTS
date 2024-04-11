@@ -1,7 +1,4 @@
-// -----------------------------------------------------------
 // ---------------          LEXER          -------------------
-// ---  Responsible for producing tokens from the source   ---
-// -----------------------------------------------------------
 
 // Define token types for language parsing.
 export enum TokenType {

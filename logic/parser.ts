@@ -1,3 +1,5 @@
+// ---------------          PARSER          -------------------
+
 // deno-lint-ignore-file no-explicit-any
 import {
   BinaryExpr,
