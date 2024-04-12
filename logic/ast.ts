@@ -4,9 +4,11 @@
 
 // Define the types of nodes that can exist in the AST.
 export type NodeType =
+  // STATEMENTS
   | "Program" // The whole program.
+  | "VarDeclaration" // A variable declaration.
+  // EXPRESSIONS
   | "NumericLiteral" // A number.
-  //| "NullLiteral" // A null value.
   | "Identifier" // A name for a variable or symbol.
   | "BinaryExpr"; // An operation involving two operands.
 
@@ -19,6 +21,13 @@ export interface Stmt {
 export interface Program extends Stmt {
   kind: "Program";
   body: Stmt[]; // Holds the list of statements in the program.
+}
+
+export interface VarDeclaration extends Stmt {
+  kind: "VarDeclaration";
+  constant: boolean; // True if the variable is a constant.
+  identifier: string; // The name of the variable.
+  value?: Expr; // ? = optional field, meaning the value is not required.
 }
 
 // Define the base structure for expressions in the AST.

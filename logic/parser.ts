@@ -1,14 +1,16 @@
 // ---------------          PARSER          -------------------
 
 // deno-lint-ignore-file no-explicit-any
+// Ignore all linting errors.
+
 import {
   BinaryExpr,
   Expr,
   Identifier,
-  //NullLiteral,
   NumericLiteral,
   Program,
   Stmt,
+  VarDeclaration,
 } from "./ast.ts";
 
 import { Token, tokenize, TokenType } from "./lexer.ts";
@@ -61,11 +63,56 @@ export default class Parser {
   }
 
   // Handle complex statement types
-  private parse_stmt(): Stmt {
-    // skip to parse_expr
-    return this.parse_expr();
+  private parse_stmt(): Stmt { // parse statement
+    switch (this.currentToken().type) {
+      case TokenType.Let:
+      case TokenType.Const:
+        return this.parse_var_declaration();
+      default:
+        return this.parse_expr();
+    }
   }
+  // LET IDENT;
+  // ( LET | CONST ) IDENT = EXPR;
+  parse_var_declaration(): Stmt {
+    const isConstant = this.consumeToken().type == TokenType.Const;
+    const identifier = this.expect(
+      TokenType.Identifier,
+      "Expected identifier name following let | const keywords.",
+    ).value;
 
+    if (this.currentToken().type == TokenType.Semicolon) {
+      this.consumeToken(); // expect semicolon
+      if (isConstant) {
+        throw "Must assigne value to constant expression. No value provided.";
+      }
+
+      return {
+        kind: "VarDeclaration",
+        identifier,
+        constant: false,
+      } as VarDeclaration;
+    }
+
+    this.expect(
+      TokenType.Equals,
+      "Expected equals token following identifier in var declaration.",
+    );
+
+    const declaration = {
+      kind: "VarDeclaration",
+      value: this.parse_expr(),
+      identifier,
+      constant: isConstant,
+    } as VarDeclaration;
+
+    this.expect(
+      TokenType.Semicolon,
+      "Variable declaration statment must end with semicolon.",
+    );
+
+    return declaration;
+  }
   // Handle expressions
   private parse_expr(): Expr {
     return this.parse_additive_expr();
@@ -123,11 +170,6 @@ export default class Parser {
 
     return left;
   }
-
-  // Orders Of Prescidence
-  // AdditiveExpr
-  // MultiplicitaveExpr
-  // PrimaryExpr
 
   // Parse Literal Values & Grouping Expressions
   private parse_primary_expr(): Expr {

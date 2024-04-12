@@ -6,6 +6,7 @@ export default class Environment {
   private parent?: Environment;
   // Map to store variable names and their corresponding values
   private variables: Map<string, RuntimeVal>;
+  private constants: Set<string>;
 
   // Constructor to initialize the environment
   constructor(parentENV?: Environment) {
@@ -13,10 +14,17 @@ export default class Environment {
     this.parent = parentENV;
     // Initialize the map to store variables
     this.variables = new Map();
+    // Initialize the set to store constants
+    this.constants = new Set();
   }
 
   // Method to declare a new variable in the current environment
-  public declareVar(varname: string, value: RuntimeVal): RuntimeVal {
+  public declareVar(
+    varname: string,
+    value: RuntimeVal,
+    constant: boolean,
+  ): RuntimeVal {
+    // console.log(varname, value); // DEBUG: Print the variable name and value
     // Check if the variable is already declared in the current environment
     if (this.variables.has(varname)) {
       // Throw an error if the variable is already declared
@@ -25,6 +33,11 @@ export default class Environment {
 
     // Set the variable and its value in the current environment
     this.variables.set(varname, value);
+
+    if (constant) {
+      this.constants.add(varname);
+    } // double checks if the variable is constant
+
     // Return the assigned value
     return value;
   }
@@ -33,6 +46,11 @@ export default class Environment {
   public assignVar(varname: string, value: RuntimeVal): RuntimeVal {
     // Resolve the environment where the variable is declared
     const env = this.resolve(varname);
+
+    // Cannot assign to a constant error
+    if (env.constants.has(varname)) {
+      throw `Cannot assign to constant variable '${varname}' as it has been declared as a constant.`;
+    }
     // Set the variable to the new value in the resolved environment
     env.variables.set(varname, value);
     // Return the assigned value

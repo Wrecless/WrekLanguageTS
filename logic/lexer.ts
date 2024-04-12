@@ -9,10 +9,12 @@ export enum TokenType {
 
   // Define language keywords.
   Let,
+  Const,
 
   // Specify syntax for operations and grouping.
   BinaryOperator,
   Equals,
+  Semicolon,
   OpenParen,
   CloseParen,
   EOF, // End of file.
@@ -21,7 +23,7 @@ export enum TokenType {
 // Map keywords to their corresponding token types.
 const KEYWORDS: Record<string, TokenType> = {
   let: TokenType.Let,
-  // null: TokenType.Null,
+  const: TokenType.Const,
 };
 
 // Represent a lexical token in the source code.
@@ -72,6 +74,9 @@ export function tokenize(sourceCode: string): Token[] {
     } else if (src[0] == "=") {
       // Handle assignment operator.
       tokens.push(token(src.shift()!, TokenType.Equals));
+    } else if (src[0] == ";") {
+      // Handle assignment operator.
+      tokens.push(token(src.shift()!, TokenType.Semicolon));
     } else if (isint(src[0])) {
       // Accumulate numeric literals.
       let num = "";
