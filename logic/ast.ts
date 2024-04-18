@@ -8,8 +8,13 @@ export type NodeType =
   | "Program" // The whole program.
   | "VarDeclaration" // A variable declaration.
   // EXPRESSIONS
-  | "NumericLiteral" // A number.
-  | "Identifier" // A name for a variable or symbol.
+  | "AssignmentExpr" // Assignment expression.
+
+  // LITERALS#
+  | "Property"
+  | "ObjectsLiteral"
+  | "NumericLiteral" // Numbers.
+  | "Identifier" // variable or symbol.
   | "BinaryExpr"; // An operation involving two operands.
 
 // Define the structure for statements in the AST.
@@ -33,6 +38,13 @@ export interface VarDeclaration extends Stmt {
 // Define the base structure for expressions in the AST.
 export interface Expr extends Stmt {}
 
+// Define an assignment expression, which assigns a value to a variable.
+export interface AssignmentExpr extends Expr {
+  kind : "AssignmentExpr";
+  assignee: Expr; // cant use string here because it needs to support complex expressions
+  value: Expr; // The expression to be assigned.
+}
+
 // Define a binary expression, which includes operations like addition or subtraction.
 export interface BinaryExpr extends Expr {
   kind: "BinaryExpr";
@@ -53,8 +65,13 @@ export interface NumericLiteral extends Expr {
   value: number; // The numeric value.
 }
 
-// Define a null literal, representing a null value in the code.
-// export interface NullLiteral extends Expr {
-// kind: "NullLiteral";
-// value: null; // The null value.
-// }
+export interface Property extends Expr {
+  kind: "Property";
+  key: string;
+  values?: Expr; // ? = optional field
+}
+
+export interface ObjectsLiteral extends Expr {
+  kind: "ObjectsLiteral";
+  properties: Property[];
+}

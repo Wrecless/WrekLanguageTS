@@ -1,4 +1,11 @@
-import { RuntimeVal } from "./values.ts";
+import { MK_BOOL, MK_NULL, RuntimeVal } from "./values.ts";
+
+function setupGlobalScope (env: Environment) {
+  env.declareVar("true", MK_BOOL(true), true);
+  env.declareVar("false", MK_BOOL(false), true);
+  env.declareVar("null", MK_NULL(), true);
+}
+
 
 // Environment class represents a lexical scope for variables
 export default class Environment {
@@ -10,12 +17,18 @@ export default class Environment {
 
   // Constructor to initialize the environment
   constructor(parentENV?: Environment) {
-    // Set the parent environment if provided, otherwise default to undefined
+    // if there parent is not set
+    const global = parentENV ? true : false;
+    // Initialize the parent environment
     this.parent = parentENV;
     // Initialize the map to store variables
     this.variables = new Map();
     // Initialize the set to store constants
     this.constants = new Set();
+
+    if (global) { // if the parent is not set
+      setupGlobalScope(this); // setup the global scope
+    }
   }
 
   // Method to declare a new variable in the current environment
@@ -49,7 +62,7 @@ export default class Environment {
 
     // Cannot assign to a constant error
     if (env.constants.has(varname)) {
-      throw `Cannot assign to constant variable '${varname}' as it has been declared as a constant.`;
+      throw `Cannot assign variable '${varname}' as it has been declared as a constant.`;
     }
     // Set the variable to the new value in the resolved environment
     env.variables.set(varname, value);

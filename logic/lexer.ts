@@ -14,9 +14,13 @@ export enum TokenType {
   // Specify syntax for operations and grouping.
   BinaryOperator,
   Equals,
+  Comma,
+  Colon,
   Semicolon,
-  OpenParen,
-  CloseParen,
+  OpenParen, // "("
+  CloseParen, // ")"
+  OpenBracket,// "{"
+  CloseBracket,// "}"
   EOF, // End of file.
 }
 
@@ -38,17 +42,17 @@ function token(value = "", type: TokenType): Token {
 }
 
 // Check if a character is an alphabetic letter.
-function isalpha(src: string) {
+function isAlphabetical(src: string) {
   return src.toUpperCase() != src.toLowerCase();
 }
 
 // Determine if a character should be ignored in parsing.
-function isskippable(str: string) {
-  return str == " " || str == "\n" || str == "\t";
+function isSkippable(str: string) {
+  return str == " " || str == "\n" || str == "\t" || str == "\r";
 }
 
 // Verify if a character is a digit.
-function isint(str: string) {
+function isInteger (str: string) {
   const c = str.charCodeAt(0);
   const bounds = ["0".charCodeAt(0), "9".charCodeAt(0)];
   return c >= bounds[0] && c <= bounds[1];
@@ -63,31 +67,55 @@ export function tokenize(sourceCode: string): Token[] {
   while (src.length > 0) {
     if (src[0] == "(") {
       tokens.push(token(src.shift()!, TokenType.OpenParen));
-    } else if (src[0] == ")") {
+    } 
+    else if (src[0] == ")") {
       tokens.push(token(src.shift()!, TokenType.CloseParen));
-    } else if (
-      src[0] == "+" || src[0] == "-" || src[0] == "*" || src[0] == "/" ||
+    } 
+    else if (src[0] == "{") {
+      tokens.push(token(src.shift()!, TokenType.OpenBracket));
+    } 
+    else if (src[0] == "}") {
+      tokens.push(token(src.shift()!, TokenType.CloseBracket));
+    }
+    
+    else if (
+      src[0] == "+" || 
+      src[0] == "-" || 
+      src[0] == "*" || 
+      src[0] == "/" ||
       src[0] == "%"
     ) {
       // Handle basic arithmetic operators.
       tokens.push(token(src.shift()!, TokenType.BinaryOperator));
-    } else if (src[0] == "=") {
+    } 
+    else if (src[0] == "=") {
       // Handle assignment operator.
       tokens.push(token(src.shift()!, TokenType.Equals));
-    } else if (src[0] == ";") {
+    } 
+    else if (src[0] == ";") {
       // Handle assignment operator.
       tokens.push(token(src.shift()!, TokenType.Semicolon));
-    } else if (isint(src[0])) {
+    }
+    else if (src[0] == ":") {
+      // Handle assignment operator.
+      tokens.push(token(src.shift()!, TokenType.Colon));
+    } 
+    else if (src[0] == ",") {
+      // Handle assignment operator.
+      tokens.push(token(src.shift()!, TokenType.Comma));
+    }  
+    else if (isInteger (src[0])) {
       // Accumulate numeric literals.
       let num = "";
-      while (src.length > 0 && isint(src[0])) {
+      while (src.length > 0 && isInteger (src[0])) {
         num += src.shift();
       }
       tokens.push(token(num, TokenType.Number));
-    } else if (isalpha(src[0])) {
+    } 
+    else if (isAlphabetical(src[0])) {
       // Build identifiers or keywords.
       let ident = "";
-      while (src.length > 0 && isalpha(src[0])) {
+      while (src.length > 0 && isAlphabetical(src[0])) {
         ident += src.shift();
       }
       const reserved = KEYWORDS[ident];
@@ -98,7 +126,8 @@ export function tokenize(sourceCode: string): Token[] {
         // Handle user-defined identifiers.
         tokens.push(token(ident, TokenType.Identifier));
       }
-    } else if (isskippable(src[0])) {
+    } 
+    else if (isSkippable(src[0])) {
       // Ignore whitespace characters.
       src.shift();
     } else {

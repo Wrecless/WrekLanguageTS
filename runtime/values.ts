@@ -1,5 +1,5 @@
 // Define the possible types of values
-export type ValueType = "null" | "number" | "boolean";
+export type ValueType = "null" | "number" | "boolean" | "o";
 
 // Interface for runtime values
 export interface RuntimeVal {

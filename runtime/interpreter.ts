@@ -1,5 +1,6 @@
 import { NumberVal, RuntimeVal } from "./values.ts";
 import {
+AssignmentExpr,
   BinaryExpr,
   Identifier,
   NumericLiteral,
@@ -9,7 +10,7 @@ import {
 } from "../logic/ast.ts";
 import Environment from "./environment.ts";
 import { eval_program, eval_var_declaration } from "./eval/statements.ts";
-import { eval_binary_expr, eval_identifier } from "./eval/expressions.ts";
+import { eval_assignment, eval_binary_expr, eval_identifier } from "./eval/expressions.ts";
 
 export function evaluate(astNode: Stmt, env: Environment): RuntimeVal {
   switch (astNode.kind) {
@@ -20,6 +21,8 @@ export function evaluate(astNode: Stmt, env: Environment): RuntimeVal {
       } as NumberVal;
     case "Identifier":
       return eval_identifier(astNode as Identifier, env);
+    case "AssignmentExpr":
+      return eval_assignment(astNode as AssignmentExpr, env); // let x = 5; // const y = 10;
     case "BinaryExpr":
       return eval_binary_expr(astNode as BinaryExpr, env);
     case "Program":
@@ -27,7 +30,7 @@ export function evaluate(astNode: Stmt, env: Environment): RuntimeVal {
     // Handle statements
     case "VarDeclaration":
       return eval_var_declaration(astNode as VarDeclaration, env);
-    // Handle unimplimented ast types as error.
+    // Handle unimplemented ast types as error.
     default:
       console.error(
         "This AST Node has not yet been setup for interpretation.",
