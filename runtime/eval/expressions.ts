@@ -1,4 +1,4 @@
-import { AssignmentExpr, BinaryExpr, Identifier, ObjectsLiteral } from "../../logic/ast.ts";
+import { AssignmentExpr, BinaryExpr, Identifier, ObjectLiteral } from "../../logic/ast.ts";
 import Environment from "../environment.ts";
 import { evaluate } from "../interpreter.ts";
 import { MK_NULL, NumberVal, ObjectVal, RuntimeVal } from "../values.ts";
@@ -67,17 +67,20 @@ export function eval_assignment ( node: AssignmentExpr, env: Environment): Runti
 }
 
 export function eval_object_expr(
-  obj: ObjectsLiteral,
+  obj: ObjectLiteral,
   env: Environment,
-): RuntimeVal {
-
+): RuntimeVal 
+{
   const object = { type: "object", properties: new Map() } as ObjectVal; // Create a new object
-  for (const { key, value } of obj.properties) { // Iterate over the properties
-    //debugger;
-    console.log(key, value);
+  for (const { key, value } of obj.properties) // Iterate over the properties
+  { 
+    // console.log(key, value);
+    const RuntimeVal = (value == undefined) 
+    ? env.lookupVar(key) 
+    : evaluate(value, env); // Get the value of the property
 
-    const RuntimeVal = (value == undefined) ? env.lookupVar(key) : evaluate(value, env); // Get the value of the property
     object.properties.set(key, RuntimeVal); // Set the property in the object
   }
+
   return object; // Return the object
 }

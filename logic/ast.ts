@@ -9,10 +9,12 @@ export type NodeType =
   | "VarDeclaration" // A variable declaration.
   // EXPRESSIONS
   | "AssignmentExpr" // Assignment expression.
+  | "MemberExpr" // Member expression.
+  | "CallExpr" // Function call.
 
   // LITERALS#
   | "Property"
-  | "ObjectsLiteral"
+  | "ObjectLiteral"
   | "NumericLiteral" // Numbers.
   | "Identifier" // variable or symbol.
   | "BinaryExpr"; // An operation involving two operands.
@@ -53,6 +55,19 @@ export interface BinaryExpr extends Expr {
   operator: string; // The operation to be performed.
 }
 
+export interface CallExpr extends Expr {
+  kind: "CallExpr";
+  args: Expr[];
+  calle: Expr;
+}
+
+export interface MemberExpr extends Expr {
+  kind: "MemberExpr";
+  object: Expr; 
+  property: Expr;
+  computed: boolean; // The operation to be performed.
+}
+
 // Define an identifier, representing a variable or symbol name in the code.
 export interface Identifier extends Expr {
   kind: "Identifier";
@@ -68,10 +83,10 @@ export interface NumericLiteral extends Expr {
 export interface Property extends Expr {
   kind: "Property";
   key: string;
-  values?: Expr; // ? = optional field
+  value?: Expr; // ? = optional field
 }
 
-export interface ObjectsLiteral extends Expr {
-  kind: "ObjectsLiteral";
+export interface ObjectLiteral extends Expr {
+  kind: "ObjectLiteral";
   properties: Property[];
 }

@@ -9,7 +9,7 @@ import {
   Expr,
   Identifier,
   NumericLiteral,
-  ObjectsLiteral,
+  ObjectLiteral,
   Program,
   Property,
   Stmt,
@@ -153,14 +153,14 @@ export default class Parser {
 
   private parse_object_expr(): Expr {
     // { Prop [] }
-    if (this.currentToken().type == TokenType.OpenBracket) {
+    if (this.currentToken().type !== TokenType.OpenBrace) {
       return this.parse_additive_expr();
     }
     this.consumeToken(); // consume the open bracket token and advance to the next token
     const properties = new Array<Property>();
 
     while (
-      this.not_eof() && this.currentToken().type != TokenType.CloseBracket
+      this.not_eof() && this.currentToken().type != TokenType.CloseBrace
     ) {
       // { Key : Value, key2 : Value2 }
       const key = this.expect(
@@ -173,9 +173,9 @@ export default class Parser {
         this.consumeToken(); // consume the comma token and advance to the next token
         properties.push({ key, kind: "Property" } as Property); // push the key to the properties array
         continue; // so it doesn't stop
-      } // detects if closing bracket is reached { Key }
-      else if (this.currentToken().type == TokenType.CloseBracket) {
-        this.consumeToken(); // consume the closing bracket token and advance to the next token
+      } 
+      // detects if closing bracket is reached { Key }
+      else if (this.currentToken().type == TokenType.CloseBrace) {
         properties.push({ key, kind: "Property" }); // push the key to the properties array
         continue; // so it doesn't stop
       }
@@ -185,7 +185,7 @@ export default class Parser {
       const value = this.parse_expr();
 
       properties.push({ kind: "Property", value, key });
-      if (this.currentToken().type != TokenType.CloseBracket) {
+      if (this.currentToken().type != TokenType.CloseBrace) {
         this.expect(
           TokenType.Comma,
           "Expected comma after object property value.",
@@ -194,10 +194,10 @@ export default class Parser {
     }
 
     this.expect(
-      TokenType.CloseBracket,
+      TokenType.CloseBrace,
       "Expected closing bracket for object expression.",
     );
-    return { kind: "ObjectsLiteral", properties } as ObjectsLiteral;
+    return { kind: "ObjectLiteral", properties } as ObjectLiteral;
   }
 
   // Handle Addition & Subtraction Operations

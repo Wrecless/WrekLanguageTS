@@ -19,8 +19,10 @@ export enum TokenType {
   Semicolon, // ";"
   OpenParen, // "("
   CloseParen, // ")"
-  OpenBracket,// "{"
-  CloseBracket,// "}"
+  OpenBrace,// "{"
+  CloseBrace,// "}"
+  OpenBracket,// "["
+  CloseBracket,// "]"
   EOF, // End of file.
 }
 
@@ -72,9 +74,15 @@ export function tokenize(sourceCode: string): Token[] {
       tokens.push(token(src.shift()!, TokenType.CloseParen));
     } 
     else if (src[0] == "{") {
-      tokens.push(token(src.shift()!, TokenType.OpenBracket));
+      tokens.push(token(src.shift()!, TokenType.OpenBrace));
     } 
     else if (src[0] == "}") {
+      tokens.push(token(src.shift()!, TokenType.CloseBrace));
+    }
+    else if (src[0] == "[") {
+      tokens.push(token(src.shift()!, TokenType.OpenBracket));
+    } 
+    else if (src[0] == "]") {
       tokens.push(token(src.shift()!, TokenType.CloseBracket));
     }
     

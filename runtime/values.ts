@@ -42,6 +42,6 @@ export function MK_NUMBER(n = 0) {
 // Interface for objects
 export interface ObjectVal extends RuntimeVal {
   type: "object"; // Type of the value
-    properties: Map<string, RuntimeVal>; // Properties of the object
+  properties: Map<string, RuntimeVal>; // Properties of the object
 }
 

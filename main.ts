@@ -11,7 +11,7 @@ async function runProgram(filename: string) {
 
   const input = await Deno.readTextFile(filename);
   const program = parser.produceAST(input);
-
+  // console.log(program);
   const result = evaluate(program, env);
   console.log(result);
 }

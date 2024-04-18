@@ -13,9 +13,7 @@ export function createGlobalEnv () {
 
 // Environment class represents a lexical scope for variables
 export default class Environment {
-  // Reference to the parent environment
   private parent?: Environment;
-  // Map to store variable names and their corresponding values
   private variables: Map<string, RuntimeVal>;
   private constants: Set<string>;
 
@@ -29,10 +27,6 @@ export default class Environment {
     this.variables = new Map();
     // Initialize the set to store constants
     this.constants = new Set();
-
-    if (global) { // if the parent is not set
-      createGlobalEnv(); // setup the global scope
-    }
   }
 
   // Method to declare a new variable in the current environment
