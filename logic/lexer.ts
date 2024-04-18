@@ -15,6 +15,7 @@ export enum TokenType {
   BinaryOperator, // "+", "-", "*", "/", "%"
   Equals, // "="
   Comma, // ","
+  Dot, // "."
   Colon, // ":"
   Semicolon, // ";"
   OpenParen, // "("
@@ -111,6 +112,10 @@ export function tokenize(sourceCode: string): Token[] {
     else if (src[0] == ",") {
       // Handle assignment operator.
       tokens.push(token(src.shift()!, TokenType.Comma));
+    }
+    else if (src[0] == ".") {
+      // Handle assignment operator.
+      tokens.push(token(src.shift()!, TokenType.Dot));
     }  
     else if (isInteger (src[0])) {
       // Accumulate numeric literals.

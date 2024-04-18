@@ -30,7 +30,6 @@ function Wrek() {
       Deno.exit(1);
     }
 
-    // AST explorer: https://astexplorer.net/
     // Produce AST From sourc-code
     const program = parser.produceAST(input);
     // console.log(program);
@@ -39,3 +38,7 @@ function Wrek() {
     console.log(result);
   }
 }
+
+// AST explorer: https://astexplorer.net/
+// https://lisperator.net/pltut/
+// https://idiocy.org/lets-go-write-a-lisp/part-1.html

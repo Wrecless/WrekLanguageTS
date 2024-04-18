@@ -6,8 +6,10 @@
 import {
   AssignmentExpr,
   BinaryExpr,
+  CallExpr,
   Expr,
   Identifier,
+  MemberExpr,
   NumericLiteral,
   ObjectLiteral,
   Program,
@@ -222,7 +224,7 @@ export default class Parser {
 
   // Handle Multiplication, Division & Modulo Operations
   private parse_multiplicative_expr(): Expr {
-    let left = this.parse_primary_expr();
+    let left = this.parse_call_member_expr();
 
     while (
       this.currentToken().value == "/" ||
@@ -230,7 +232,7 @@ export default class Parser {
       this.currentToken().value == "%"
     ) {
       const operator = this.consumeToken().value;
-      const right = this.parse_primary_expr();
+      const right = this.parse_call_member_expr();
       left = {
         kind: "BinaryExpr",
         left,
@@ -240,6 +242,96 @@ export default class Parser {
     }
 
     return left;
+  }
+
+  // foo.x ()
+  private parse_call_member_expr(): Expr {
+    const member = this.parse_member_expr();
+
+    if (this.currentToken().type == TokenType.OpenParen) {
+      return this.parse_call_expr(member);
+    }
+
+    return member;
+  }
+
+  private parse_call_expr(caller: Expr): Expr {
+    let call_expr: Expr = {
+      kind: "CallExpr",
+      caller,
+      args: this.parse_args(),
+    } as CallExpr;
+
+    if (this.currentToken().type == TokenType.OpenParen) {
+      call_expr = this.parse_call_expr(call_expr);
+    }
+
+    return call_expr;
+  }
+
+  private parse_args(): Expr[] {
+    this.expect(TokenType.OpenParen, "Expected open parenthesis");
+    const args = this.currentToken().type == TokenType.CloseParen
+      ? []
+      : this.parse_arguments_list();
+
+    this.expect(
+      TokenType.CloseParen,
+      "Missing closing parenthesis",
+    );
+    return args;
+  }
+
+  // f(x = 5, v = "hello")
+  private parse_arguments_list(): Expr[] {
+    const args = [this.parse_assignment_expr()];
+
+    while (this.currentToken().type == TokenType.Comma && this.consumeToken()) {
+      args.push(this.parse_assignment_expr());
+    }
+
+    return args;
+  }
+
+  private parse_member_expr(): Expr {
+    let object = this.parse_primary_expr();
+
+    while (
+      this.currentToken().type == TokenType.Dot || this.currentToken().type == TokenType.OpenBracket
+    ) 
+    {
+      const operator = this.consumeToken();
+      let property: Expr;
+      let computed: boolean;
+
+      // non-computed values aka obj.expr
+      if (operator.type == TokenType.Dot) {
+        computed = false;
+        // get identifier
+        property = this.parse_primary_expr();
+        if (property.kind != "Identifier") 
+        {
+          throw `Can not use dot without right being a identifier`;
+        }
+      } 
+      else { // this allows obj[computedValue]
+        computed = true;
+        property = this.parse_expr();
+        this.expect(
+          TokenType.CloseBracket,
+          "Missing closing bracket.",
+        );
+      }
+
+      object = {
+        kind: "MemberExpr",
+        object,
+        property,
+        computed,
+      } as MemberExpr;
+    }
+
+    return object;
   }
 
   // Parse Literal Values & Grouping Expressions
@@ -254,13 +346,6 @@ export default class Parser {
           kind: "Identifier",
           symbol: this.consumeToken().value,
         } as Identifier;
-
-      // case TokenType.Null:
-      //   this.consumeToken(); // consume the null token and advance to the next token
-      //   return {
-      //     kind: "NullLiteral",
-      //     value: null,
-      //   } as NullLiteral;
 
       // Constants and Numeric Constants
       case TokenType.Number:
