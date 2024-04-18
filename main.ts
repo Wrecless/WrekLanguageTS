@@ -1,36 +1,40 @@
 import Parser from "./logic/parser.ts";
-import Environment from "./runtime/environment.ts";
+import Environment, { createGlobalEnv } from "./runtime/environment.ts";
 import { evaluate } from "./runtime/interpreter.ts";
-import { MK_BOOL, MK_NULL } from "./runtime/values.ts";
 
+// Wrek();
+runProgram("./test.txt");
 
-runProgram();
+async function runProgram(filename: string) {
+  const parser = new Parser();
+  const env = createGlobalEnv();
 
-function runProgram() {
-  const parser = new Parser(); // Create a new parser instance
-  const env = new Environment(); // Create a new environment instance
+  const input = await Deno.readTextFile(filename);
+  const program = parser.produceAST(input);
 
-  // DEBUG: Declare some variables in the environment
-  // env.declareVar("true", MK_BOOL(true), true);
-  // env.declareVar("false", MK_BOOL(false), true);
-  // env.declareVar("null", MK_NULL(), true);
+  const result = evaluate(program, env);
+  console.log(result);
+}
 
-  // Print the welcome message
-  console.log("\n Wrek programming language v0.1");
+function Wrek() {
+  const parser = new Parser();
+  const env = createGlobalEnv();
+  // INITIALIZE Wrek
+  console.log("\n Welcome to the Wrek Programming Language\n");
 
+  // Continue Wrek Until User Stops Or Types `exit`
   while (true) {
-    const input = prompt("Wrek > ");
-    //check if the user wants to exit
+    const input = prompt("Wrek> ");
+    // Check for no user input or exit keyword.
     if (!input || input.includes("exit")) {
       Deno.exit(1);
     }
 
-    // Parse the input and produce the AST
     // AST explorer: https://astexplorer.net/
+    // Produce AST From sourc-code
     const program = parser.produceAST(input);
-    // console.log(program); // DEBUG: Print the AST
+    // console.log(program);
 
-    // Evaluate the AST and prints result
     const result = evaluate(program, env);
     console.log(result);
   }

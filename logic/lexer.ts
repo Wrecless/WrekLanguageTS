@@ -12,11 +12,11 @@ export enum TokenType {
   Const,
 
   // Specify syntax for operations and grouping.
-  BinaryOperator,
-  Equals,
-  Comma,
-  Colon,
-  Semicolon,
+  BinaryOperator, // "+", "-", "*", "/", "%"
+  Equals, // "="
+  Comma, // ","
+  Colon, // ":"
+  Semicolon, // ";"
   OpenParen, // "("
   CloseParen, // ")"
   OpenBracket,// "{"

@@ -1,9 +1,13 @@
 import { MK_BOOL, MK_NULL, RuntimeVal } from "./values.ts";
 
-function setupGlobalScope (env: Environment) {
+export function createGlobalEnv () {
+  const env = new Environment(); // Create a new environment instance
+  //Create default global environment
   env.declareVar("true", MK_BOOL(true), true);
   env.declareVar("false", MK_BOOL(false), true);
   env.declareVar("null", MK_NULL(), true);
+
+  return env;
 }
 
 
@@ -27,7 +31,7 @@ export default class Environment {
     this.constants = new Set();
 
     if (global) { // if the parent is not set
-      setupGlobalScope(this); // setup the global scope
+      createGlobalEnv(); // setup the global scope
     }
   }
 

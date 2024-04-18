@@ -1,5 +1,5 @@
 // Define the possible types of values
-export type ValueType = "null" | "number" | "boolean" | "o";
+export type ValueType = "null" | "number" | "boolean" | "object";
 
 // Interface for runtime values
 export interface RuntimeVal {
@@ -38,3 +38,10 @@ export interface NumberVal extends RuntimeVal {
 export function MK_NUMBER(n = 0) {
   return { type: "number", value: n } as NumberVal; // Return a number value
 }
+
+// Interface for objects
+export interface ObjectVal extends RuntimeVal {
+  type: "object"; // Type of the value
+    properties: Map<string, RuntimeVal>; // Properties of the object
+}
+

@@ -190,7 +190,6 @@ export default class Parser {
           TokenType.Comma,
           "Expected comma after object property value.",
         );
-        
       }
     }
 

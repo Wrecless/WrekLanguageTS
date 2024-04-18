@@ -1,7 +1,7 @@
-import { AssignmentExpr, BinaryExpr, Identifier } from "../../logic/ast.ts";
+import { AssignmentExpr, BinaryExpr, Identifier, ObjectsLiteral } from "../../logic/ast.ts";
 import Environment from "../environment.ts";
 import { evaluate } from "../interpreter.ts";
-import { MK_NULL, NumberVal, RuntimeVal } from "../values.ts";
+import { MK_NULL, NumberVal, ObjectVal, RuntimeVal } from "../values.ts";
 
 function eval_numeric_binary_expr(
   lhs: NumberVal,
@@ -11,14 +11,18 @@ function eval_numeric_binary_expr(
   let result: number;
   if (operator == "+") {
     result = lhs.value + rhs.value;
-  } else if (operator == "-") {
+  } 
+  else if (operator == "-") {
     result = lhs.value - rhs.value;
-  } else if (operator == "*") {
+  } 
+  else if (operator == "*") {
     result = lhs.value * rhs.value;
-  } else if (operator == "/") {
+  } 
+  else if (operator == "/") {
     // TODO: Division by zero checks
     result = lhs.value / rhs.value;
-  } else {
+  } 
+  else {
     result = lhs.value % rhs.value;
   }
 
@@ -60,4 +64,20 @@ export function eval_assignment ( node: AssignmentExpr, env: Environment): Runti
 
     const varname = (node.assignee as Identifier).symbol; // Get the variable name
   return env.assignVar(varname, evaluate(node.value, env)); // Assign the value to the variable
+}
+
+export function eval_object_expr(
+  obj: ObjectsLiteral,
+  env: Environment,
+): RuntimeVal {
+
+  const object = { type: "object", properties: new Map() } as ObjectVal; // Create a new object
+  for (const { key, value } of obj.properties) { // Iterate over the properties
+    //debugger;
+    console.log(key, value);
+
+    const RuntimeVal = (value == undefined) ? env.lookupVar(key) : evaluate(value, env); // Get the value of the property
+    object.properties.set(key, RuntimeVal); // Set the property in the object
+  }
+  return object; // Return the object
 }
