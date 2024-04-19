@@ -17,6 +17,7 @@ export type NodeType =
   | "Property"
   | "ObjectLiteral"
   | "NumericLiteral" // Numbers.
+  | "FloatLiteral" // Floats.
   | "Identifier" // variable or symbol.
   | "BinaryExpr"; // An operation involving two operands.
 
@@ -86,6 +87,11 @@ export interface Identifier extends Expr {
 export interface NumericLiteral extends Expr {
   kind: "NumericLiteral";
   value: number; // The numeric value.
+}
+
+export interface FloatLiteral extends Expr {
+  kind: "FloatLiteral";
+  value: number;
 }
 
 export interface Property extends Expr {

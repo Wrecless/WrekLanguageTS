@@ -57,7 +57,7 @@ function isSkippable(str: string) {
 }
 
 // Verify if a character is a digit.
-function isInteger (str: string) {
+function isDigit (str: string) {
   const c = str.charCodeAt(0);
   const bounds = ["0".charCodeAt(0), "9".charCodeAt(0)];
   return c >= bounds[0] && c <= bounds[1];
@@ -119,14 +119,24 @@ export function tokenize(sourceCode: string): Token[] {
       // Handle assignment operator.
       tokens.push(token(src.shift()!, TokenType.Dot));
     }  
-    else if (isInteger (src[0])) {
+    
+    else if (isDigit(src[0])) {
       // Accumulate numeric literals.
       let num = "";
-      while (src.length > 0 && isInteger (src[0])) {
+      let hasDecimalPoint = false;
+      while (src.length > 0 && (isDigit(src[0]) || (!hasDecimalPoint && src[0] === '.'))) {
+        if (src[0] === '.') {
+          if (num.length === 0) { // Handle .5 as 0.5
+            num += '0';
+          }
+          hasDecimalPoint = true;
+        }
         num += src.shift();
       }
+      // Push the token as a Number; you might consider distinguishing types further if needed.
       tokens.push(token(num, TokenType.Number));
-    } 
+    }
+    
     else if (isAlphabetical(src[0])) {
       // Build identifiers or keywords.
       let ident = "";

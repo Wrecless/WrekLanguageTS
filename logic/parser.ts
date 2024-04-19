@@ -17,6 +17,7 @@ import {
   Stmt,
   VarDeclaration,
   FunctionDeclaration,
+  FloatLiteral,
 } from "./ast.ts";
 
 import { Token, tokenize, TokenType } from "./lexer.ts";
@@ -390,12 +391,21 @@ export default class Parser {
         } as Identifier;
 
       // Constants and Numeric Constants
-      case TokenType.Number:
-        return {
-          kind: "NumericLiteral",
-          value: parseFloat(this.consumeToken().value),
-        } as NumericLiteral;
-
+      case TokenType.Number: {
+        const tokenValue = this.consumeToken().value;
+        if (tokenValue.includes('.')) {
+          return {
+            kind: "FloatLiteral",
+            value: parseFloat(tokenValue),
+          } as FloatLiteral;
+        }
+        else {
+          return {
+            kind: "NumericLiteral",
+            value: parseInt(tokenValue, 10),
+          } as NumericLiteral;
+        }
+      }
       // Grouping Expressions
       case TokenType.OpenParen: {
         this.consumeToken(); // consumeToken the opening paren

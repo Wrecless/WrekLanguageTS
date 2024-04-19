@@ -6,6 +6,7 @@ AssignmentExpr,
   FunctionDeclaration,
   Identifier,
   NumericLiteral,
+  FloatLiteral,
   ObjectLiteral,
   Program,
   Stmt,
@@ -18,8 +19,9 @@ import { eval_assignment, eval_binary_expr, eval_call_expr, eval_identifier, eva
 export function evaluate(astNode: Stmt, env: Environment): RuntimeVal {
   switch (astNode.kind) {
     case "NumericLiteral":
+    case "FloatLiteral": // Combine handling for simplicity
       return {
-        value: ((astNode as NumericLiteral).value),
+        value: (astNode as NumericLiteral | FloatLiteral).value,
         type: "number",
       } as NumberVal;
 
