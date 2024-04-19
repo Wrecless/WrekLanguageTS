@@ -16,6 +16,7 @@ import {
   Property,
   Stmt,
   VarDeclaration,
+  FunctionDeclaration,
 } from "./ast.ts";
 
 import { Token, tokenize, TokenType } from "./lexer.ts";
@@ -73,10 +74,50 @@ export default class Parser {
       case TokenType.Let:
       case TokenType.Const:
         return this.parse_var_declaration();
+      case TokenType.Fn:
+        return this.parse_fn_declaration();
       default:
         return this.parse_expr();
     }
   }
+
+  parse_fn_declaration(): Stmt {
+    this.consumeToken(); // consume fn token
+    const name = this.expect(
+      TokenType.Identifier,
+      "Expected function name after fn keyword.",
+    ).value;
+
+    const args = this.parse_args();
+    // goes over the arguments and checks if they are identifiers
+    const params: string[] = [];
+    for (const arg of args) {
+      if (arg.kind != "Identifier") { // checks if the argument is an identifier
+        console.log(args);
+        throw "Function arguments must be identifiers.";
+      }
+      params.push((arg as Identifier).symbol);
+    }
+    this.expect(TokenType.OpenBracket, "Expected opening bracket for function body.");
+
+    const body: Stmt [] = [];  // function body
+
+    while (this.currentToken().type !== TokenType.EOF && this.currentToken().type !== TokenType.CloseBrace) {
+      body.push(this.parse_stmt());
+    }
+
+    this.expect(TokenType.CloseBrace, "Expected closing brace for function body.");
+
+    const fn = {
+      body,
+      name,
+      parameters: params,
+      kind: "FunctionDeclaration",
+    } as FunctionDeclaration;
+
+    return fn;
+  }
+  
 
   // Order of Prescience //
 
@@ -269,6 +310,7 @@ export default class Parser {
     return call_expr;
   }
 
+  // reads the arguments of a function call until the closing parenthesis
   private parse_args(): Expr[] {
     this.expect(TokenType.OpenParen, "Expected open parenthesis");
     const args = this.currentToken().type == TokenType.CloseParen

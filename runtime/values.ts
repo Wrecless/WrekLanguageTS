@@ -1,5 +1,8 @@
+import Environment from "./environment.ts";
+import { Stmt } from "../logic/ast.ts";
+
 // Define the possible types of values
-export type ValueType = "null" | "number" | "boolean" | "object";
+export type ValueType = "null" | "number" | "boolean" | "object" | "native-fn" | "function";
 
 // Interface for runtime values
 export interface RuntimeVal {
@@ -45,3 +48,21 @@ export interface ObjectVal extends RuntimeVal {
   properties: Map<string, RuntimeVal>; // Properties of the object
 }
 
+export type FunctionCall = (args: RuntimeVal[], env: Environment) => RuntimeVal;
+
+export interface NativeFnValue extends RuntimeVal {
+  type: "native-fn"; // Type of the value
+  call: FunctionCall; // Function to be executed
+}
+
+export function MK_NATIVE_FN(call: FunctionCall) {
+  return { type: "native-fn", call } as NativeFnValue; // Return a number value
+}
+
+export interface FunctionValue extends RuntimeVal {
+  type: "function"; // Type of the value
+  name: string;
+  parameters: string[];
+  declarationEnv: Environment;
+  body: Stmt[];
+}

@@ -2,8 +2,8 @@ import Parser from "./logic/parser.ts";
 import Environment, { createGlobalEnv } from "./runtime/environment.ts";
 import { evaluate } from "./runtime/interpreter.ts";
 
-// Wrek();
-runProgram("./test.txt");
+Wrek();
+// runProgram("./test.txt");
 
 async function runProgram(filename: string) {
   const parser = new Parser();

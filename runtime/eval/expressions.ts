@@ -1,7 +1,7 @@
-import { AssignmentExpr, BinaryExpr, Identifier, ObjectLiteral } from "../../logic/ast.ts";
+import { AssignmentExpr, BinaryExpr, CallExpr, Identifier, ObjectLiteral } from "../../logic/ast.ts";
 import Environment from "../environment.ts";
 import { evaluate } from "../interpreter.ts";
-import { MK_NULL, NumberVal, ObjectVal, RuntimeVal } from "../values.ts";
+import { FunctionValue, MK_NULL, NativeFnValue, NumberVal, ObjectVal, RuntimeVal } from "../values.ts";
 
 function eval_numeric_binary_expr(
   lhs: NumberVal,
@@ -83,4 +83,37 @@ export function eval_object_expr(
   }
 
   return object; // Return the object
+}
+
+export function eval_call_expr(
+  expr: CallExpr,
+  env: Environment,
+): RuntimeVal 
+{
+  const args = expr.args.map((arg) => evaluate(arg, env)); // Evaluate the arguments
+  const fn = evaluate(expr.caller, env); // Evaluate the function
+
+  if (fn.type == "native-fn") {
+    const result = (fn as NativeFnValue).call(args, env); // Get the function to be called
+    return result; // Return the result
+  }
+
+  if (fn.type == "function") {
+    const func = fn as FunctionValue; // Get the function
+    const scope = new Environment(func.declarationEnv); // Create a new environment
+
+    //create the variables for the parameters list
+    for (let i = 0; i < func.parameters.length; i++) {
+      // TODO: check the bounds of the args array
+      const varname = func.parameters[i]; // Get the parameter name
+      scope.declareVar(varname, args[i], false); // Declare the parameter in the new environment
+    }
+    let result: RuntimeVal = MK_NULL();
+    // Eval line by line
+    for (const stmt of func.body) {
+      result = evaluate(stmt, scope); // Evaluate the statement in the new environment
+    }
+    return result; // Return the result
+  }
+  throw "Cannot call value that is not a function" + JSON.stringify(fn); // Throw an error if the value is not a function
 }

@@ -1,13 +1,2 @@
-let foo = 50 / 2;
-
-const obj = {
-  x: 100,
-  y: 32,
-  foo: foo,
-  complex: {
-    bar: true,
-  },
-};
-
-let f = obj.complex.bar;
-foo = obj.foo + 5
+1-2
+25+25-125

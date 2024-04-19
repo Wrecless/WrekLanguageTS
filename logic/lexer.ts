@@ -10,6 +10,7 @@ export enum TokenType {
   // Define language keywords.
   Let,
   Const,
+  Fn,
 
   // Specify syntax for operations and grouping.
   BinaryOperator, // "+", "-", "*", "/", "%"
@@ -31,6 +32,7 @@ export enum TokenType {
 const KEYWORDS: Record<string, TokenType> = {
   let: TokenType.Let,
   const: TokenType.Const,
+  fn: TokenType.Fn,
 };
 
 // Represent a lexical token in the source code.

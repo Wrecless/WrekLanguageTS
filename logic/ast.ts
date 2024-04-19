@@ -7,6 +7,7 @@ export type NodeType =
   // STATEMENTS
   | "Program" // The whole program.
   | "VarDeclaration" // A variable declaration.
+  | "FunctionDeclaration" // A function declaration.
   // EXPRESSIONS
   | "AssignmentExpr" // Assignment expression.
   | "MemberExpr" // Member expression.
@@ -35,6 +36,13 @@ export interface VarDeclaration extends Stmt {
   constant: boolean; // True if the variable is a constant.
   identifier: string; // The name of the variable.
   value?: Expr; // ? = optional field, meaning the value is not required.
+}
+
+export interface FunctionDeclaration extends Stmt {
+  kind: "FunctionDeclaration";
+  parameters: string[]; // The names of the parameters.
+  name: string; // The name of the function.
+  body: Stmt[]; // The body of the function.
 }
 
 // Define the base structure for expressions in the AST.
