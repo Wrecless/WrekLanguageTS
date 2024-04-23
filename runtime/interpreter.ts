@@ -1,20 +1,31 @@
-import { NumberVal, RuntimeVal } from "./values.ts";
+import { MK_STRING, NumberVal, RuntimeVal } from "./values.ts";
 import {
-AssignmentExpr,
+  AssignmentExpr,
   BinaryExpr,
   CallExpr,
+  FloatLiteral,
   FunctionDeclaration,
   Identifier,
   NumericLiteral,
-  FloatLiteral,
   ObjectLiteral,
   Program,
   Stmt,
+  StringLiteral,
   VarDeclaration,
 } from "../logic/ast.ts";
 import Environment from "./environment.ts";
-import { eval_function_declaration, eval_program, eval_var_declaration } from "./eval/statements.ts";
-import { eval_assignment, eval_binary_expr, eval_call_expr, eval_identifier, eval_object_expr } from "./eval/expressions.ts";
+import {
+  eval_function_declaration,
+  eval_program,
+  eval_var_declaration,
+} from "./eval/statements.ts";
+import {
+  eval_assignment,
+  eval_binary_expr,
+  eval_call_expr,
+  eval_identifier,
+  eval_object_expr,
+} from "./eval/expressions.ts";
 
 export function evaluate(astNode: Stmt, env: Environment): RuntimeVal {
   switch (astNode.kind) {
@@ -49,7 +60,10 @@ export function evaluate(astNode: Stmt, env: Environment): RuntimeVal {
 
     case "FunctionDeclaration":
       return eval_function_declaration(astNode as FunctionDeclaration, env);
-      
+
+    case "StringLiteral":
+      return MK_STRING((astNode as StringLiteral).value);
+
     // Handle unimplemented ast types as error.
     default:
       console.error(

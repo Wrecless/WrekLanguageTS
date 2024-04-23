@@ -1,6 +1,14 @@
-import { MK_BOOL, MK_NATIVE_FN, MK_NULL, MK_NUMBER, RuntimeVal } from "./values.ts";
+import {
+  MK_BOOL,
+  MK_NATIVE_FN,
+  MK_NULL,
+  MK_NUMBER,
+  RuntimeVal,
+} from "./values.ts";
 
-export function createGlobalEnv () {
+import { evaluate } from "./interpreter.ts";
+
+export function createGlobalEnv() {
   const env = new Environment(); // Create a new environment instance
   //Create default global environment
   env.declareVar("true", MK_BOOL(true), true);
@@ -9,12 +17,15 @@ export function createGlobalEnv () {
 
   // Define a native function to print values to the console
   env.declareVar(
-    "print", 
-    MK_NATIVE_FN((args, scope) => {
-      console.log(...args);
-      return MK_NULL();
-    }), 
-    true
+    "print",
+    MK_NATIVE_FN((args, env) => {
+      args.forEach((arg) => {
+        const evaluatedArg = evaluate(arg, env);
+        console.log(evaluatedArg.value);
+      });
+      return MK_NULL(); // Assuming print returns no meaningful value
+    }),
+    true,
   );
 
   function timeFunction(_args: RuntimeVal[], _env: Environment) {
@@ -24,7 +35,6 @@ export function createGlobalEnv () {
 
   return env;
 }
-
 
 // Environment class represents a lexical scope for variables
 export default class Environment {

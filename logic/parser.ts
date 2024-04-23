@@ -8,6 +8,8 @@ import {
   BinaryExpr,
   CallExpr,
   Expr,
+  FloatLiteral,
+  FunctionDeclaration,
   Identifier,
   MemberExpr,
   NumericLiteral,
@@ -15,9 +17,9 @@ import {
   Program,
   Property,
   Stmt,
+  StringLiteral,
+  UnaryExpr,
   VarDeclaration,
-  FunctionDeclaration,
-  FloatLiteral,
 } from "./ast.ts";
 
 import { Token, tokenize, TokenType } from "./lexer.ts";
@@ -99,15 +101,24 @@ export default class Parser {
       }
       params.push((arg as Identifier).symbol);
     }
-    this.expect(TokenType.OpenBracket, "Expected opening bracket for function body.");
+    this.expect(
+      TokenType.OpenBracket,
+      "Expected opening bracket for function body.",
+    );
 
-    const body: Stmt [] = [];  // function body
+    const body: Stmt[] = []; // function body
 
-    while (this.currentToken().type !== TokenType.EOF && this.currentToken().type !== TokenType.CloseBrace) {
+    while (
+      this.currentToken().type !== TokenType.EOF &&
+      this.currentToken().type !== TokenType.CloseBrace
+    ) {
       body.push(this.parse_stmt());
     }
 
-    this.expect(TokenType.CloseBrace, "Expected closing brace for function body.");
+    this.expect(
+      TokenType.CloseBrace,
+      "Expected closing brace for function body.",
+    );
 
     const fn = {
       body,
@@ -118,7 +129,6 @@ export default class Parser {
 
     return fn;
   }
-  
 
   // Order of Prescience //
 
@@ -217,8 +227,7 @@ export default class Parser {
         this.consumeToken(); // consume the comma token and advance to the next token
         properties.push({ key, kind: "Property" } as Property); // push the key to the properties array
         continue; // so it doesn't stop
-      } 
-      // detects if closing bracket is reached { Key }
+      } // detects if closing bracket is reached { Key }
       else if (this.currentToken().type == TokenType.CloseBrace) {
         properties.push({ key, kind: "Property" }); // push the key to the properties array
         continue; // so it doesn't stop
@@ -340,9 +349,9 @@ export default class Parser {
     let object = this.parse_primary_expr();
 
     while (
-      this.currentToken().type == TokenType.Dot || this.currentToken().type == TokenType.OpenBracket
-    ) 
-    {
+      this.currentToken().type == TokenType.Dot ||
+      this.currentToken().type == TokenType.OpenBracket
+    ) {
       const operator = this.consumeToken();
       let property: Expr;
       let computed: boolean;
@@ -352,12 +361,10 @@ export default class Parser {
         computed = false;
         // get identifier
         property = this.parse_primary_expr();
-        if (property.kind != "Identifier") 
-        {
+        if (property.kind != "Identifier") {
           throw `Can not use dot without right being a identifier`;
         }
-      } 
-      else { // this allows obj[computedValue]
+      } else { // this allows obj[computedValue]
         computed = true;
         property = this.parse_expr();
         this.expect(
@@ -377,6 +384,24 @@ export default class Parser {
     return object;
   }
 
+  private parseUnaryExpression(): UnaryExpr {
+    const operator = this.consumeToken(); // Consume the unary operator token
+    const operand = this.parse_expr(); // Recursively parse the expression following the unary operator
+    return {
+      kind: "UnaryExpr",
+      operator: operator.value,
+      operand: operand,
+    };
+  }
+
+  private parseStringLiteral(): Expr {
+    const token = this.consumeToken(); // Consume the string token
+    return {
+      kind: "StringLiteral",
+      value: token.value,
+    } as StringLiteral;
+  }
+
   // Parse Literal Values & Grouping Expressions
   private parse_primary_expr(): Expr {
     const tk = this.currentToken().type;
@@ -393,20 +418,25 @@ export default class Parser {
       // Constants and Numeric Constants
       case TokenType.Number: {
         const tokenValue = this.consumeToken().value;
-        if (tokenValue.includes('.')) {
+        if (tokenValue.includes(".")) {
           return {
             kind: "FloatLiteral",
             value: parseFloat(tokenValue),
           } as FloatLiteral;
-        }
-        else {
+        } else {
           return {
             kind: "NumericLiteral",
             value: parseInt(tokenValue, 10),
           } as NumericLiteral;
         }
       }
+
+      // String Literals
+      case TokenType.String:
+        return this.parseStringLiteral();
+
       // Grouping Expressions
+      // Parse string literals
       case TokenType.OpenParen: {
         this.consumeToken(); // consumeToken the opening paren
         const value = this.parse_expr();
@@ -419,11 +449,9 @@ export default class Parser {
 
       // Unidentified Tokens and Invalid Code Reached
       default:
-        console.error(
-          "Unexpected token found during parsing!",
-          this.currentToken(),
+        throw new Error(
+          `Unexpected token found during parsing: ${this.currentToken().value}`,
         );
-        Deno.exit(1);
     }
   }
 }

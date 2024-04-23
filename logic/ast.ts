@@ -12,12 +12,13 @@ export type NodeType =
   | "AssignmentExpr" // Assignment expression.
   | "MemberExpr" // Member expression.
   | "CallExpr" // Function call.
-
-  // LITERALS#
+  // LITERALS
   | "Property"
   | "ObjectLiteral"
   | "NumericLiteral" // Numbers.
   | "FloatLiteral" // Floats.
+  | "UnaryExpr" // Unary operations like "!" or "-
+  | "StringLiteral" // Strings.
   | "Identifier" // variable or symbol.
   | "BinaryExpr"; // An operation involving two operands.
 
@@ -51,7 +52,7 @@ export interface Expr extends Stmt {}
 
 // Define an assignment expression, which assigns a value to a variable.
 export interface AssignmentExpr extends Expr {
-  kind : "AssignmentExpr";
+  kind: "AssignmentExpr";
   assignee: Expr; // cant use string here because it needs to support complex expressions
   value: Expr; // The expression to be assigned.
 }
@@ -72,7 +73,7 @@ export interface CallExpr extends Expr {
 
 export interface MemberExpr extends Expr {
   kind: "MemberExpr";
-  object: Expr; 
+  object: Expr;
   property: Expr;
   computed: boolean; // The operation to be performed.
 }
@@ -92,6 +93,17 @@ export interface NumericLiteral extends Expr {
 export interface FloatLiteral extends Expr {
   kind: "FloatLiteral";
   value: number;
+}
+
+export interface UnaryExpr extends Expr {
+  kind: "UnaryExpr";
+  operator: string; // "+" or "-", or even "!" if your language supports logical negation
+  operand: Expr;
+}
+
+export interface StringLiteral extends Expr {
+  kind: "StringLiteral";
+  value: string;
 }
 
 export interface Property extends Expr {

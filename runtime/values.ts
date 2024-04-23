@@ -2,11 +2,19 @@ import Environment from "./environment.ts";
 import { Stmt } from "../logic/ast.ts";
 
 // Define the possible types of values
-export type ValueType = "null" | "number" | "boolean" | "object" | "native-fn" | "function";
+export type ValueType =
+  | "null"
+  | "number"
+  | "boolean"
+  | "object"
+  | "native-fn"
+  | "function"
+  | "string";
 
 // Interface for runtime values
 export interface RuntimeVal {
   type: ValueType; // Type of the value
+  value?: any; // Value of the value
 }
 
 // Defines a value of undefined meaning
@@ -65,4 +73,8 @@ export interface FunctionValue extends RuntimeVal {
   parameters: string[];
   declarationEnv: Environment;
   body: Stmt[];
+}
+
+export function MK_STRING(value: string): RuntimeVal {
+  return { type: "string", value };
 }

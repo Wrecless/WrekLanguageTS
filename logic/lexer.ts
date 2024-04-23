@@ -6,6 +6,7 @@ export enum TokenType {
   // Null,
   Number,
   Identifier,
+  String,
 
   // Define language keywords.
   Let,
@@ -21,10 +22,10 @@ export enum TokenType {
   Semicolon, // ";"
   OpenParen, // "("
   CloseParen, // ")"
-  OpenBrace,// "{"
-  CloseBrace,// "}"
-  OpenBracket,// "["
-  CloseBracket,// "]"
+  OpenBrace, // "{"
+  CloseBrace, // "}"
+  OpenBracket, // "["
+  CloseBracket, // "]"
   EOF, // End of file.
 }
 
@@ -57,7 +58,7 @@ function isSkippable(str: string) {
 }
 
 // Verify if a character is a digit.
-function isDigit (str: string) {
+function isDigit(str: string) {
   const c = str.charCodeAt(0);
   const bounds = ["0".charCodeAt(0), "9".charCodeAt(0)];
   return c >= bounds[0] && c <= bounds[1];
@@ -66,116 +67,97 @@ function isDigit (str: string) {
 // Convert source code into a sequence of tokens.
 export function tokenize(sourceCode: string): Token[] {
   const tokens = new Array<Token>();
-  const src = sourceCode.split("");
+  let i = 0;
+  const length = sourceCode.length;
 
-  // Continue until the end of source code is reached.
-  while (src.length > 0) {
-    if (src[0] == "(") {
-      tokens.push(token(src.shift()!, TokenType.OpenParen));
-    } 
-    else if (src[0] == ")") {
-      tokens.push(token(src.shift()!, TokenType.CloseParen));
-    } 
-    else if (src[0] == "{") {
-      tokens.push(token(src.shift()!, TokenType.OpenBrace));
-    } 
-    else if (src[0] == "}") {
-      tokens.push(token(src.shift()!, TokenType.CloseBrace));
+  while (i < length) {
+    const char = sourceCode[i];
+
+    if (isSkippable(char)) {
+      i++; // Ignore whitespace
+      continue;
     }
-    else if (src[0] == "[") {
-      tokens.push(token(src.shift()!, TokenType.OpenBracket));
-    } 
-    else if (src[0] == "]") {
-      tokens.push(token(src.shift()!, TokenType.CloseBracket));
-    }
-    
-    else if (
-      src[0] == "+" || 
-      src[0] == "-" || 
-      src[0] == "*" || 
-      src[0] == "/" ||
-      src[0] == "%"
-    ) {
-      // Handle basic arithmetic operators.
-      tokens.push(token(src.shift()!, TokenType.BinaryOperator));
-    } 
-    else if (src[0] == "=") {
-      // Handle assignment operator.
-      tokens.push(token(src.shift()!, TokenType.Equals));
-    } 
-    else if (src[0] == ";") {
-      // Handle assignment operator.
-      tokens.push(token(src.shift()!, TokenType.Semicolon));
-    }
-    else if (src[0] == ":") {
-      // Handle assignment operator.
-      tokens.push(token(src.shift()!, TokenType.Colon));
-    } 
-    else if (src[0] == ",") {
-      // Handle assignment operator.
-      tokens.push(token(src.shift()!, TokenType.Comma));
-    }
-    else if (src[0] == ".") {
-      // Handle assignment operator.
-      tokens.push(token(src.shift()!, TokenType.Dot));
-    }  
-    
-    else if (isDigit(src[0])) {
-      // Accumulate numeric literals.
-      let num = "";
-      let hasDecimalPoint = false;
-      while (src.length > 0 && (isDigit(src[0]) || (!hasDecimalPoint && src[0] === '.'))) {
-        if (src[0] === '.') {
-          if (num.length === 0) { // Handle .5 as 0.5
-            num += '0';
-          }
-          hasDecimalPoint = true;
+
+    if (char === '"' || char === "'") { // String literals
+      const start = i;
+      i++; // skip the opening quote
+      let stringContent = "";
+
+      while (i < length && sourceCode[i] !== char) {
+        if (sourceCode[i] === "\\" && i + 1 < length) { // Handle escape characters
+          i++;
+          stringContent += sourceCode[i];
+        } else {
+          stringContent += sourceCode[i];
         }
-        num += src.shift();
+        i++;
       }
-      // Push the token as a Number; you might consider distinguishing types further if needed.
-      tokens.push(token(num, TokenType.Number));
+
+      if (i >= length) {
+        throw new Error(`Unterminated string literal starting at ${start}`);
+      }
+
+      i++; // skip the closing quote
+      tokens.push(token(stringContent, TokenType.String));
+      continue;
     }
-    
-    else if (isAlphabetical(src[0])) {
-      // Build identifiers or keywords.
+
+    if (isDigit(char) || (char === "." && isDigit(sourceCode[i + 1]))) { // Numeric literals
+      let num = "";
+      while (i < length && (isDigit(sourceCode[i]) || sourceCode[i] === ".")) {
+        num += sourceCode[i];
+        i++;
+      }
+      tokens.push(token(num, TokenType.Number));
+      continue;
+    }
+
+    if (isAlphabetical(char)) { // Identifiers or keywords
       let ident = "";
-      while (src.length > 0 && isAlphabetical(src[0])) {
-        ident += src.shift();
+      while (i < length && isAlphabetical(sourceCode[i])) {
+        ident += sourceCode[i];
+        i++;
       }
-      const reserved = KEYWORDS[ident];
-      if (typeof reserved == "number") {
-        // Recognize reserved keywords.
-        tokens.push(token(ident, reserved));
-      } else {
-        // Handle user-defined identifiers.
-        tokens.push(token(ident, TokenType.Identifier));
-      }
-    } 
-    else if (isSkippable(src[0])) {
-      // Ignore whitespace characters.
-      src.shift();
-    } else {
-      // Report unrecognized characters and exit.
-      console.error(
-        "Unrecognized character found in source: ",
-        src[0].charCodeAt(0),
-        src[0],
-      );
-      Deno.exit(1);
+      const type = KEYWORDS[ident] || TokenType.Identifier;
+      tokens.push(token(ident, type));
+      continue;
+    }
+
+    // Operators and single-character tokens
+    switch (char) {
+      case "+":
+      case "-":
+      case "*":
+      case "/":
+      case "%":
+        // Handle potential double unary operators like "--"
+        if ((char === "+" || char === "-") && sourceCode[i + 1] === char) {
+          tokens.push(token("+", TokenType.BinaryOperator));
+          i += 2; // Skip both characters
+        } else {
+          tokens.push(token(char, TokenType.BinaryOperator));
+          i++;
+        }
+        break;
+      case "=":
+      case ",":
+      case ".":
+      case ":":
+      case ";":
+      case "(":
+      case ")":
+      case "{":
+      case "}":
+      case "[":
+      case "]":
+        tokens.push(token(char, TokenType[char as keyof typeof TokenType]));
+        i++;
+        break;
+      default:
+        throw new Error(`Unrecognized character: ${char} at position ${i}`);
     }
   }
 
   tokens.push({ type: TokenType.EOF, value: "EndOfFile" });
   return tokens;
 }
-
-// debug
-
-/*
-// Example usage: Read source code from a file and tokenize it.
-const source = await Deno.readTextFile("./test.txt");
-for (const token of tokenize(source)) {
-  console.log(token);
-}
-*/
